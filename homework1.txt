@@ -1,0 +1,294 @@
+Script started on Fri 23 Sep 2016 09:01:43 PM EDT
+[4mpi[24m:[1m~[0m> cat permutations.c
+/*
+ * =====================================================================================
+ *
+ *       Assignment: Homework #1 - part A
+ *
+ *    Description:  Use C code to write a function (a part of an API) with the signature char **getPermutations(char *), which, when given a string, returns all the permutations of the input string.
+ *
+ *    Write a driver program which, when given a string on the command line, uses the above function to get and print all the permutations of the string. 
+ *
+ *        Version:  1.0
+ *        Created:  09/06/2016 03:42:16 PM
+ *            Due:	09/23/2016 11:59:59 PM
+ *       Compiler:  gcc
+ *
+ *         Author:  Justin G. McQuaid (jtetra5), jmcquaid@mcquaidcoding.com
+ *   Organization:  State University of New York at Oswego
+ *
+ * =====================================================================================
+ */
+
+
+#include	<stdlib.h>
+#include	<stdio.h>
+#include	<string.h>
+
+// prototypes
+char **getPermutations(char *);
+void swap (char *, int, int);
+size_t factorial (char *);
+
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  main
+ *  Description:  Begins main program execution.  This is the driver that takes the command line argument and makes a call to the 'getPermutations' function to generate the permutations.
+ * =====================================================================================
+ */
+
+int main ( int argc, char *argv[] )
+{
+	// array of pointers which will contain all the permutations
+	char **permutations;
+
+	// the amount of permutations
+	size_t n = factorial(argv[1]);
+
+	// call to 'getPermutations' functions
+	permutations = getPermutations(argv[1]);
+
+	// for loop to print the permutations
+	for (int i = 0; i < n; i++)	{
+		printf("%s\n", permutations[i]);
+		free(permutations[i]);
+	}
+
+	// frees the memory allocated for 'permutations'
+	free(permutations);
+	return EXIT_SUCCESS;
+}				/* ----------  end of function main  ---------- */
+
+
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  getPermutations
+ *  Description:  This function takes a command line argument and generates all permutations of said argument
+ * =====================================================================================
+ */
+
+char **getPermutations ( char *ptr )
+{
+  	char *str;
+
+	// allocate memory for 'str' that is the size of the parameter 'ptr'
+	str = malloc(sizeof(char) * (strlen(ptr) + 1));
+
+	// copy 'ptr' into 'str'
+	strcpy (str, ptr);
+	
+	// the amount of letters in the command line argument
+	size_t columns = strlen(str);
+
+	// the amount of rows/permutations
+	size_t rows = factorial(str);
+	char **per;
+
+	// for loop counter which indicates the element of 'per'
+	int i = 0;
+
+	// allocate memory for 'per'
+    per = malloc(sizeof(char *) * rows);
+
+	// This algorithm conducts the production of permutations, beginning with the innermost loop, which occurs if y does not equal z and y plus 1 equals z.  In terms of array indexes, the swapping occurs in '0-1,1-2, 2-3, etc.' format.  The outermost loop determines when the amount of permutations has been successfully produced, thus ending the iterations.
+	for (int x = 0; x < rows / (columns - 1); x++)	{
+		for (int y = 0; y < columns; y++)	{ 
+			for (int z = 1; z < columns; z++)	{
+				if (y != z && y + 1 == z)	{
+
+					// allocate memory for per[i]
+					per[i] = malloc(sizeof(char) * (strlen(str) + 1));
+
+					// copy 'str' into 'per[i]
+					strcpy(per[i], str);
+
+					// swap the index y and z of str
+					swap(str, y, z);
+					i++;
+				}
+			}	
+		}
+	}
+			
+	// free the memory allocated for 'str'
+	free(str);
+
+	return per;
+}	
+	/* -----  end of function getPermutations  ----- */
+
+
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  swap
+ *  Description:  This function takes in a char pointer, an int, and another int.  The integer parameters indicate array indexes.  The return is void.
+ * =====================================================================================
+ */
+	
+void swap (char *str, int a, int b)
+{
+	char c;
+	c = str[a];
+	str[a] = str[b];
+	str[b] = c;
+}		/* -----  end of function Swap  ----- */
+
+
+
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  factorial
+ *  Description:  This function takes in a char pointer and returns the factorial of type size_t.
+ * =====================================================================================
+ */
+	
+size_t factorial (char *ptr )
+{
+	char *str;
+
+	// allocates memory for 'str'
+	str = malloc(sizeof(char) * (strlen(ptr) + 1));
+
+	// copies 'ptr' into 'str'
+	strcpy(str, ptr);
+
+	// stores the size of the string
+	size_t string = strlen(str);
+	
+	// factorial variable
+	size_t factorial = 1;
+
+	// for loop which applies 'n!' to 'factorial'
+	for (size_t i = string; i >= 1; i--)	{
+		factorial *= i;
+	}
+
+	//frees the memory allocated for 'str'
+	free(str);
+	return factorial;
+}		/* -----  end of function factorial  ----- */
+[4mpi[24m:[1m~[0m> cat permutations.c[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[Kmake permutations
+gcc	-g -o permutations permutations.c
+[4mpi[24m:[1m~[0m> ./permutations cat
+cat
+act
+atc
+tac
+tca
+cta
+[4mpi[24m:[1m~[0m> ./permutations elephant | wc -l
+40320
+[4mpi[24m:[1m~[0m> cat randoms.c
+/*
+ * =====================================================================================
+ *
+ *       Assignment:  Homework #1 - part B
+ *
+ *    Description:  A program in C which generates a sequence of random numbers. Provide command line options to specify the number of these to produce as well as the range into which each falls. (The default is 10 numbers, each in the inclusive range 1 to 100.)
+ *
+ *        Version:  1.0
+ *        Created:  09/20/2016 07:46:36 AM
+ *            Due:  09/23/2016 11:59:59 PM
+ *       Compiler:  gcc
+ *
+ *         Author:  Justin McQuaid (jtetra5), jmcquaid@oswego.edu
+ *   Organization:  State University of New York at Oswego
+ * =====================================================================================
+ */
+
+
+#include	<stdlib.h>
+#include	<stdio.h>
+#include	<unistd.h>
+#include	<ctype.h>
+#include	<string.h>
+#include	<time.h>
+ 
+/*
+ * @char *			program
+ * @description 	consists of the first command line argument, the name of the program itself.
+ */
+static char *program;
+
+/* @prototype		randoms
+ * @description 	prototype for the 'randoms' function 
+ */
+void randoms(int, int, int);
+
+/* 
+ * @function	main
+ * @purpose		Begins main program execution.
+ * @description Will produce a sequence of random numbers based on the command line options provided.  The default values display 10 numbers, ranging from 1 to 100.  The program name is copied into the 'program' variable.  The variable 'c' is then passed into the while loop logic, which will utilize the switch cases depending on the command line options given by the user.  The output given will be a sequence of randomly generated numbers, which will be quantified and binded by the upper and lower bounds set by the user, and well as the count.  If a user enters an incorrect option, they will be notified that '?' was reached, and the default count, lower, and upper will be displayed.  If an option is missing, the user will be notified.
+ */
+int main ( int argc, char *argv[] )
+{
+	int count = 10;
+	int upper = 100;
+	int lower = 0;
+	int c = 0;
+	char *options = ":l:u:n:";
+	program = (char *)malloc(sizeof(char)*(strlen(argv[0])+1));
+	strcpy(program, argv[0]);
+	while((c = getopt(argc, argv, options)) != -1)	{
+		if (c == '?')	{
+			printf("%s\n", "c == '?' was reached");
+			c = optopt;
+		} else if (c == ':')	{
+			c = optopt;
+			printf("missing value for option %c\n", c);
+		}
+		else {
+			switch (c)	{
+				case 'l':
+					lower = atoi(optarg);
+					break;
+				case 'u':
+					upper = atoi(optarg);
+					break;
+				case 'n':
+					count = atoi(optarg);
+					break;
+			}
+	
+		}				
+	}
+
+	randoms(lower, upper, count);
+	return EXIT_SUCCESS;
+}		/* ----- end of function main ----- */
+
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  randoms
+ *  Description:  This function takes three integers as parameters, the lower bound, the upper bound, and the count.  A NULL value is seeded by the 'srand' function, and then a for loop iterates through the random integers.
+ * =====================================================================================
+ */
+
+void randoms (int l, int u, int n)
+{
+	unsigned int random;
+	srand(time(NULL));
+	for (int i = 0; i < n; i++)	{
+		random = rand() % u + l;
+		printf("%u\n", random);
+	}
+	return;
+}/* -----  end of function randoms  ----- */
+
+[4mpi[24m:[1m~[0m> make randoms
+gcc 	-g -o randoms randoms.c
+[4mpi[24m:[1m~[0m> ./randoms -n 2
+7
+44
+[4mpi[24m:[1m~[0m> ./randoms -n 2[K[Kn 3 -l 90
+115
+145
+137
+[4mpi[24m:[1m~[0m> ./randoms -n 3 -l 90[K[K[K[K[K[Ku 10000 -n 3 -l 1000
+8376
+5733
+1830
+[4mpi[24m:[1m~[0m> exit
+exit
+
+Script done on Fri 23 Sep 2016 09:04:23 PM EDT
